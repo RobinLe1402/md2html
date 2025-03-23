@@ -8,7 +8,7 @@ endif()
 
 # ensure CMAKE_BUILD_TYPE is set if it's not set by the preset
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")  # Default to Release if not set
+  set(CMAKE_BUILD_TYPE "Release")  # Default to Release if not set
 endif()
 
 project ("md2html")
