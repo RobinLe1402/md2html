@@ -1,6 +1,11 @@
-# RobinLe CMake Project Template
+# RobinLe Markdown to HTML converter
 
-This repo acts as a template for my CMake-based projects.
+This repo contains the command-line tool `md2html`, which can convert Markdown files (`.md`) into plain HTML files.
+
+> [!IMPORTANT]
+> At this point in time, the `main` branch is basically just a placeholder for later.
+> 
+> Development of an initial version is in progress on the `development` branch.
 
 
 ## Directories
