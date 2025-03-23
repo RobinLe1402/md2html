@@ -40,15 +40,6 @@ int main(int argc, char* argv[])
 
     Settings settings;
 
-    if (cmd.inputPath() && cmd.outputPath())
-    {
-        if (strcmp(cmd.inputPath(), cmd.outputPath()) == 0)
-        {
-            std::fprintf(stderr, "The input file can't be the same as the output file.\n");
-            return 1;
-        }
-    }
-
     std::shared_ptr<std::istream> sp_input;
     std::shared_ptr<std::ostream> sp_output;
 

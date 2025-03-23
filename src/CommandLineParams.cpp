@@ -1,5 +1,6 @@
 #include "CommandLineParams.hpp"
 
+#include <filesystem>
 #include <set>
 
 namespace
@@ -24,12 +25,35 @@ namespace
         { "input-file",  Parameter::InputFile  },
         { "output-file", Parameter::OutputFile }
     });
+
+
+
+    namespace fs = std::filesystem;
+
+
+    bool CheckFile(const char *szPath)
+    {
+        if (!fs::exists(szPath))
+        {
+            std::fprintf(stderr, "File \"%s\" doesn't exist.\n", szPath);
+            return false;
+        }
+
+        if (!fs::is_regular_file(szPath))
+        {
+            std::fprintf(stderr, "\"%s\" is not a file.\n", szPath);
+            return false;
+        }
+
+        return true;
+    }
+
 }
 
 CommandLineParams::CommandLineParams(int argc, char* argv[])
 {
     std::set<Parameter> params;
-    for (unsigned iArg = 1; iArg < argc; ++iArg)
+    for (unsigned iArg = 1; iArg < (unsigned)argc; ++iArg)
     {
         params.clear();
 
@@ -81,6 +105,10 @@ CommandLineParams::CommandLineParams(int argc, char* argv[])
             }
         }
 
+
+
+        // evaluate parameters
+        unsigned iSkippedParams = 0;
         for (const auto param : params)
         {
             switch (param)
@@ -101,7 +129,14 @@ CommandLineParams::CommandLineParams(int argc, char* argv[])
                 else
                 {
                     m_szInputPath = argv[iArg + 1];
-                    ++iArg;
+                    iSkippedParams = 1;
+
+                    if (!CheckFile(m_szInputPath))
+                    {
+                        m_bErrorMessage = true;
+                        m_bValid        = false;
+                        return;
+                    }
                 }
                 break;
 
@@ -117,10 +152,44 @@ CommandLineParams::CommandLineParams(int argc, char* argv[])
                 else
                 {
                     m_szOutputPath = argv[iArg + 1];
-                    ++iArg;
+                    iSkippedParams = 1;
+
+                    if (!CheckFile(m_szOutputPath))
+                    {
+                        m_bErrorMessage = true;
+                        m_bValid        = false;
+                        return;
+                    }
                 }
                 break;
             }
         }
+
+        iArg += iSkippedParams;
     }
+
+
+    if (m_szInputPath && m_szOutputPath)
+    {
+        try
+        {
+            if (fs::equivalent(m_szInputPath, m_szOutputPath))
+            {
+                std::fprintf(stderr, "The input file can't be the same as the output file.\n");
+
+                m_bErrorMessage = true;
+                m_bValid        = false;
+                return;
+            }
+        }
+        catch (const fs::filesystem_error &e)
+        {
+            std::fprintf(stderr, "Error evaluating the given paths:\n%s\n", e.what());
+            
+            m_bValid        = false;
+            m_bErrorMessage = true;
+            return;
+        }
+    }
+
 }
