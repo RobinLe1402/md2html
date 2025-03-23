@@ -11,18 +11,14 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")  # Default to Release if not set
 endif()
 
-project ("unnamed-project")
+project ("md2html")
 
 
-# set the application output directory (Windows: .exe)
+# set the application output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${ROBINLE_BINPATH}")
-# set the static library output directory (Windows: .lib, Linux: .a)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${ROBINLE_BINPATH}")
-# set the dynamic library output directory (Windows: .dll, Linux: .so)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${ROBINLE_BINPATH}")
 
-add_executable (unnamed-project "src/main.cpp")
+add_executable (md2html "src/main.cpp" "src/Converter.cpp" "src/rlUtils/MemoryStream.cpp" "src/CommandLineParams.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET unnamed-project PROPERTY CXX_STANDARD 20)
+  set_property(TARGET md2html PROPERTY CXX_STANDARD 20)
 endif()
