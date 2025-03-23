@@ -7,8 +7,17 @@ Converter::Converter(Settings &settings) :
 
 bool Converter::run()
 {
-    std::fprintf(stderr, "Converter::run() is not implemented yet!\n");
-    m_bErrorMessage = true;
+    std::string sLine;
+    while (std::getline(m_oInput, sLine))
+    {
+        m_oLines.push_back(sLine);
+    }
 
-    return false; // TODO
+    // TODO: actually process the data
+    for (const auto &sLine : m_oLines)
+    {
+        m_oOutput << sLine << "\n";
+    }
+
+    return true;
 }

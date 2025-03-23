@@ -7,6 +7,9 @@
 
 #include "Settings.hpp"
 
+#include <string>
+#include <vector>
+
 
 
 class Converter final
@@ -17,6 +20,8 @@ private: // variables
     std::ostream &m_oOutput;
 
     bool m_bErrorMessage = false;
+
+    std::vector<std::string> m_oLines;
 
     
 public: // methods
