@@ -99,7 +99,10 @@ CommandLineParams::CommandLineParams(int argc, char* argv[])
                     return;
                 }
                 else
+                {
                     m_szInputPath = argv[iArg + 1];
+                    ++iArg;
+                }
                 break;
 
             case Parameter::OutputFile:
@@ -112,7 +115,10 @@ CommandLineParams::CommandLineParams(int argc, char* argv[])
                     return;
                 }
                 else
+                {
                     m_szOutputPath = argv[iArg + 1];
+                    ++iArg;
+                }
                 break;
             }
         }
