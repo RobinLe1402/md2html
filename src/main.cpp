@@ -116,12 +116,14 @@ void PrintHelp(const char *szArgv0)
         "Usage: %s [OPTIONS]\n"
         "\n"
         "Options:\n"
-        "  --i, --input-file <path>   Specify the input file.\n"
+        "  -i, --input-file <path>   Specify the input file.\n"
         "                             If this parameter is not present, standard input is read.\n"
-        "  --o, --output-file <path>  Specify the output file.\n"
+        "  -o, --output-file <path>  Specify the output file.\n"
         "                             If this parameter is not present, the result is written to\n"
         "                             standard output.\n"
-        "  --h, --help                Show this message and exit.\n",
+        "  -h, --help                 Show this message and exit.\n"
+        "\n"
+        "Note that all input is assumed to be UTF-8 and all output will be UTF-8 too.\n",
         szArgv0
     );
 }
