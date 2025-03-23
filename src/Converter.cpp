@@ -80,7 +80,31 @@ void Converter::processBlock(const std::vector<std::string> &oTextBlock)
             {
                 m_oOutput << oCodeBlock[i] << '\n';
             }
-            m_oOutput << oCodeBlock[oCodeBlock.size() - 1] << "</pre>\n";
+            m_oOutput << oCodeBlock[oCodeBlock.size() - 1] << "</pre>";
+        }
+
+        else if (std::regex_search(sLine, oMatch, RegEx::BLOCKQUOTE))
+        {
+            m_oOutput << "<blockquote>";
+
+            std::vector<std::string> m_oBlockquoteContent;
+            m_oBlockquoteContent.push_back(oMatch[1].str());
+
+            while (++iLine < oTextBlock.size())
+            {
+                const auto &sLine = oTextBlock[iLine];
+
+                if (std::regex_search(sLine, oMatch, RegEx::BLOCKQUOTE))
+                    m_oBlockquoteContent.push_back(oMatch[1].str());
+                else if (std::regex_search(sLine, oMatch, RegEx::TRIM))
+                    m_oBlockquoteContent.push_back(oMatch[1].str());
+                else
+                    break;
+            }
+
+            processBlock(m_oBlockquoteContent);
+
+            m_oOutput << "</blockquote>";
         }
 
 
