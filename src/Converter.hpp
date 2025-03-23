@@ -21,7 +21,10 @@ private: // variables
 
     bool m_bErrorMessage = false;
 
-    std::vector<std::string> m_oLines;
+
+private: // methods
+
+    void processBlock(const std::vector<std::string> &oTextBlock);
 
     
 public: // methods
