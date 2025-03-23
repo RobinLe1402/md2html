@@ -9,7 +9,7 @@ IF %ERRORLEVEL% EQU 0 GOTO lbMain
 
 
 
-REM "cmake" not callable without giving a path --> search for it
+REM "cmake" not callable without giving a path --> try to initialize the VS Dev CMD environment
 ECHO [Trying to initialize the "Developer Command Prompt for Visual Studio" environment...]
 SET "sVSWHERE_EXE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
 
@@ -28,7 +28,7 @@ GOTO lbMain
 
 :lbError_NoCMake
 ECHO Error: cmake.exe couldn't be found.
-ECHO Add it to PATH or call this script within the Visual Studio Command Prompt.
+ECHO Add it to PATH or call this script within the "Developer Command Prompt for Visual Studio".
 EXIT /b 1
 
 
