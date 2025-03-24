@@ -62,7 +62,7 @@ LineBuffer::LineBuffer(std::vector<std::string> &&buffer) :
 const std::string &LineBuffer::current() const
 {
     if (!fillBuffer(false))
-        return "";
+        throw std::exception();
 
     return m_oBuffer[0];
 }
@@ -98,7 +98,7 @@ bool LineBuffer::next()
 const std::string &LineBuffer::peekNext()
 {
     if (!fillBuffer(true))
-        return "";
+        throw std::exception();
 
     return m_oBuffer[1];
 }
