@@ -5,6 +5,7 @@
 
 
 
+#include "LineBuffer.hpp"
 #include "Settings.hpp"
 
 #include <string>
@@ -24,7 +25,7 @@ private: // variables
 
 private: // methods
 
-    void processBlock(const std::vector<std::string> &oTextBlock);
+    void processBlock(LineBuffer &buffer);
 
     
 public: // methods

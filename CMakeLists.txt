@@ -17,7 +17,7 @@ project ("md2html")
 # set the application output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${ROBINLE_BINPATH}")
 
-add_executable (md2html "src/main.cpp" "src/Converter.cpp" "src/CommandLineParams.cpp")
+add_executable (md2html "src/main.cpp" "src/Converter.cpp" "src/CommandLineParams.cpp" "src/LineBuffer.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET md2html PROPERTY CXX_STANDARD 20)

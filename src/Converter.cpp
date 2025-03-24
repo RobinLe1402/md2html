@@ -68,23 +68,21 @@ Converter::Converter(Settings &settings) :
     m_oOutput(*settings.output)
 { }
 
-void Converter::processBlock(const std::vector<std::string> &oTextBlock)
+void Converter::processBlock(LineBuffer &buffer)
 {
-    size_t iLine = 0;
-
     std::smatch oMatch;
 
-    while (iLine < oTextBlock.size())
+    while (!buffer.eof())
     {
         // skip empty lines at the start of any block
-        if (EmptyLine(oTextBlock[iLine]))
+        if (EmptyLine(buffer.current()))
         {
-            ++iLine;
+            buffer.next();
             continue;
         }
 
 
-        const auto &sLine = oTextBlock[iLine];
+        const auto &sLine = buffer.current();
 
         if (std::regex_search(sLine, oMatch, RegEx::CODEBLOCK_INDENTED))
         {
@@ -92,9 +90,9 @@ void Converter::processBlock(const std::vector<std::string> &oTextBlock)
             oCodeBlock.push_back(oMatch[1].str());
 
             size_t iFirstEmpty = 1;
-            while (++iLine < oTextBlock.size())
+            while (buffer.next())
             {
-                const auto &sLine = oTextBlock[iLine];
+                const auto &sLine = buffer.current();
 
                 if (std::regex_search(sLine, oMatch, RegEx::CODEBLOCK_INDENTED))
                 {
@@ -121,22 +119,23 @@ void Converter::processBlock(const std::vector<std::string> &oTextBlock)
         {
             m_oOutput << "<blockquote>";
 
-            std::vector<std::string> m_oBlockquoteContent;
-            m_oBlockquoteContent.push_back(oMatch[1].str());
+            std::vector<std::string> oBlockquoteContent;
+            oBlockquoteContent.push_back(oMatch[1].str());
 
-            while (++iLine < oTextBlock.size())
+            while (buffer.next())
             {
-                const auto &sLine = oTextBlock[iLine];
+                const auto &sLine = buffer.current();
 
                 if (std::regex_search(sLine, oMatch, RegEx::BLOCKQUOTE))
-                    m_oBlockquoteContent.push_back(oMatch[1].str());
+                    oBlockquoteContent.push_back(oMatch[1].str());
                 else if (std::regex_search(sLine, oMatch, RegEx::TRIM))
-                    m_oBlockquoteContent.push_back(oMatch[1].str());
+                    oBlockquoteContent.push_back(oMatch[1].str());
                 else
                     break;
             }
 
-            processBlock(m_oBlockquoteContent);
+            LineBuffer_Prebuffered buf(std::move(oBlockquoteContent));
+            processBlock(buf);
 
             m_oOutput << "</blockquote>";
         }
@@ -150,13 +149,13 @@ void Converter::processBlock(const std::vector<std::string> &oTextBlock)
 
             std::vector<std::string> oCodeBlock;
 
-            while (++iLine < oTextBlock.size())
+            while (buffer.next())
             {
-                const auto &sLine = oTextBlock[iLine];
+                const auto &sLine = buffer.current();
 
                 if (std::regex_match(sLine, RegEx::CODEBLOCK_BACKTICKS_CLOSE))
                 {
-                    ++iLine; // skip the trailing ``` line
+                    buffer.next(); // skip the trailing ``` line
                     break;
                 }
 
@@ -174,7 +173,7 @@ void Converter::processBlock(const std::vector<std::string> &oTextBlock)
             m_oOutput << "</pre>";
         }
 
-        else if (iLine + 1 < oTextBlock.size() && IsTableHead(sLine, oTextBlock[iLine + 1]))
+        else if (buffer.hasNext() && IsTableHead(sLine, buffer.peekNext()))
         {
             std::vector<std::string> oCells;
 
@@ -182,7 +181,7 @@ void Converter::processBlock(const std::vector<std::string> &oTextBlock)
             oDummyBlock.resize(1);
 
             // parse the separator line first, as it dictates the alignment
-            std::regex_search(oTextBlock[iLine + 1], oMatch, RegEx::TABLE_LINE);
+            std::regex_search(buffer.peekNext(), oMatch, RegEx::TABLE_LINE);
             ParseTableLine(oMatch[1].str(), oCells);
             const size_t iColumnCount = oCells.size();
             std::vector<std::string> oAlignmentStrings;
@@ -223,21 +222,23 @@ void Converter::processBlock(const std::vector<std::string> &oTextBlock)
             {
                 m_oOutput << "<th" << oAlignmentStrings[iCol] << ">";
                 oDummyBlock[0] = oCells[iCol];
-                processBlock(oDummyBlock);
+
+                LineBuffer_Prebuffered buf(oDummyBlock);
+                processBlock(buf);
                 m_oOutput << "</th>";
             }
             m_oOutput << "</tr></thead>";
 
-            ++iLine;
+            buffer.next();
 
-            const bool bTBody = iLine + 1 < oTextBlock.size() &&
-                                std::regex_search(oTextBlock[iLine], RegEx::TABLE_LINE);
+            const bool bTBody = buffer.hasNext() &&
+                                std::regex_search(buffer.peekNext(), RegEx::TABLE_LINE);
             
             if (bTBody)
                 m_oOutput << "<tbody>";
-            while (++iLine < oTextBlock.size())
+            while (buffer.next())
             {
-                if (!std::regex_search(oTextBlock[iLine], oMatch, RegEx::TABLE_LINE))
+                if (!std::regex_search(buffer.current(), oMatch, RegEx::TABLE_LINE))
                     break;
 
                 ParseTableLine(oMatch[1].str(), oCells);
@@ -248,7 +249,9 @@ void Converter::processBlock(const std::vector<std::string> &oTextBlock)
                 {
                     m_oOutput << "<td" << oAlignmentStrings[iCol] << ">";
                     oDummyBlock[0] = oCells[iCol];
-                    processBlock(oDummyBlock);
+
+                    LineBuffer_Prebuffered buf(oDummyBlock);
+                    processBlock(buf);
                     m_oOutput << "</td>";
                 }
                 m_oOutput << "</tr>";
@@ -267,22 +270,15 @@ void Converter::processBlock(const std::vector<std::string> &oTextBlock)
         else
         {
             m_oOutput << sLine << '\n';
-            ++iLine;
+            buffer.next();
         }
     }
 }
 
 bool Converter::run()
 {
-    std::string sLine;
-    std::vector<std::string> oLines;
-
-    while (std::getline(m_oInput, sLine))
-    {
-        oLines.push_back(sLine);
-    }
-
-    processBlock(oLines);
+    LineBuffer_StandardInput buffer;
+    processBlock(buffer);
 
     return true;
 }
