@@ -58,14 +58,7 @@ int main(int argc, char* argv[])
 
     // no input path specified --> read stdin
     else
-    {
-        std::ostringstream buf;
-        buf << std::cin.rdbuf();
-        const std::string input = buf.str();
-
-        sp_input = std::make_unique<rlUtils::MemoryStream>(input.c_str(), input.length());
-        settings.input = sp_input.get();
-    }
+        settings.input = &std::cin;
 
 
     // output path specified --> write file
