@@ -117,7 +117,10 @@ void Converter::processBlock(const std::vector<std::string> &oTextBlock)
                 const auto &sLine = oTextBlock[iLine];
 
                 if (std::regex_match(sLine, RegEx::CODEBLOCK_BACKTICKS_CLOSE))
+                {
+                    ++iLine; // skip the trailing ``` line
                     break;
+                }
 
                 oCodeBlock.push_back(sLine);
             }
