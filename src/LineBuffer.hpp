@@ -5,6 +5,7 @@
 
 
 
+#include <istream>
 #include <vector>
 #include <string>
 
@@ -49,7 +50,7 @@ public: // methods
 
 class LineBuffer_Prebuffered final : public LineBuffer
 {
-protected:
+protected: // methods
 
     bool readLine(std::string &dest) const override;
 
@@ -62,11 +63,22 @@ public: // methods
 
 };
 
-class LineBuffer_StandardInput : public LineBuffer
+class LineBuffer_InputStream : public LineBuffer
 {
-protected:
+private: // variables
+
+    std::istream &m_oInput;
+
+
+protected: // methods
 
     bool readLine(std::string &dest) const override;
+
+
+public: // methods
+
+    LineBuffer_InputStream(std::istream &input);
+    ~LineBuffer_InputStream() = default;
 
 };
 

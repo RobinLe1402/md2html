@@ -29,7 +29,7 @@ bool LineBuffer::fillBuffer(bool bPeek) const
             return true;
     }
 
-        [[fallthrough]]
+    [[fallthrough]];
     case 1:
     {
         std::string sTemp;
@@ -89,11 +89,10 @@ std::string LineBuffer::popCurrent()
 
 bool LineBuffer::next()
 {
-    if (!fillBuffer(true))
-        return false;
-
-    m_oBuffer.erase(m_oBuffer.begin());
-    return true;
+    const bool result = fillBuffer(true);
+    if (!m_oBuffer.empty())
+        m_oBuffer.erase(m_oBuffer.begin());
+    return result;
 }
 
 const std::string &LineBuffer::peekNext()
@@ -127,7 +126,12 @@ LineBuffer_Prebuffered::LineBuffer_Prebuffered(std::vector<std::string> &&buffer
 
 
 
-bool LineBuffer_StandardInput::readLine(std::string &dest) const
+bool LineBuffer_InputStream::readLine(std::string &dest) const
 {
-    return (bool)std::getline(std::cin, dest);
+    return (bool)std::getline(m_oInput, dest);
+}
+
+LineBuffer_InputStream::LineBuffer_InputStream(std::istream &input) : m_oInput(input)
+{
+
 }

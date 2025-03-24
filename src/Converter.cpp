@@ -82,7 +82,7 @@ void Converter::processBlock(LineBuffer &buffer)
         }
 
 
-        const auto &sLine = buffer.current();
+        const std::string sLine = buffer.current();
 
         if (std::regex_search(sLine, oMatch, RegEx::CODEBLOCK_INDENTED))
         {
@@ -143,7 +143,7 @@ void Converter::processBlock(LineBuffer &buffer)
         else if (std::regex_search(sLine, oMatch, RegEx::CODEBLOCK_BACKTICKS_OPEN))
         {
             m_oOutput << "<pre";
-            if (oMatch[2].length() != 0)
+            if (oMatch[1].length() != 0)
                 m_oOutput << " lang=\"" << oMatch[2].str() << "\"";
             m_oOutput << ">";
 
@@ -277,7 +277,7 @@ void Converter::processBlock(LineBuffer &buffer)
 
 bool Converter::run()
 {
-    LineBuffer_StandardInput buffer;
+    LineBuffer_InputStream buffer(m_oInput);
     processBlock(buffer);
 
     return true;
