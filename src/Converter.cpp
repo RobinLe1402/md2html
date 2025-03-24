@@ -53,10 +53,8 @@ void Converter::processBlock(const std::vector<std::string> &oTextBlock)
             std::vector<std::string> oCodeBlock;
             oCodeBlock.push_back(oMatch[1].str());
 
-            ++iLine;
-
             size_t iFirstEmpty = 1;
-            while (iLine < oTextBlock.size())
+            while (++iLine < oTextBlock.size())
             {
                 const auto &sLine = oTextBlock[iLine];
 
@@ -69,8 +67,6 @@ void Converter::processBlock(const std::vector<std::string> &oTextBlock)
                     oCodeBlock.push_back("");
                 else
                     break;
-
-                ++iLine;
             }
 
             oCodeBlock.erase(oCodeBlock.begin() + iFirstEmpty, oCodeBlock.end());
@@ -105,6 +101,36 @@ void Converter::processBlock(const std::vector<std::string> &oTextBlock)
             processBlock(m_oBlockquoteContent);
 
             m_oOutput << "</blockquote>";
+        }
+
+        else if (std::regex_search(sLine, oMatch, RegEx::CODEBLOCK_BACKTICKS_OPEN))
+        {
+            m_oOutput << "<pre";
+            if (oMatch[2].length() != 0)
+                m_oOutput << " lang=\"" << oMatch[2].str() << "\"";
+            m_oOutput << ">";
+
+            std::vector<std::string> oCodeBlock;
+
+            while (++iLine < oTextBlock.size())
+            {
+                const auto &sLine = oTextBlock[iLine];
+
+                if (std::regex_match(sLine, RegEx::CODEBLOCK_BACKTICKS_CLOSE))
+                    break;
+
+                oCodeBlock.push_back(sLine);
+            }
+
+            if (oCodeBlock.size() > 0)
+            {
+                for (size_t i = 0; i + 1 < oCodeBlock.size(); ++i)
+                {
+                    m_oOutput << oCodeBlock[i] << '\n';
+                }
+                m_oOutput << oCodeBlock[oCodeBlock.size() - 1];
+            }
+            m_oOutput << "</pre>";
         }
 
 
