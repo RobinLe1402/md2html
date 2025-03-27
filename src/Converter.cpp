@@ -3,8 +3,11 @@
 #include "RegEx.hpp"
 
 
-// reference:
+// references:
 // https://spec-md.com/
+// https://www.markdownguide.org/
+// original specifications:
+// https://daringfireball.net/projects/markdown/syntax
 
 namespace
 {
